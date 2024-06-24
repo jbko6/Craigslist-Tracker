@@ -48,7 +48,7 @@ def access_item(id):
         return "Invalid ID", 400
 
     if request.method == 'GET':
-        item = items.find_one({'_id': ObjectId(id)})
+        item = items.find_one(ObjectId(id))
         if item == None:
             return 'Could not find item with specified ID.', 404
         
@@ -57,7 +57,7 @@ def access_item(id):
         # post stuff
         return "you got me", 200
     
-    deleteResult = items.delete_one({'_id': ObjectId(id)})
+    deleteResult = items.delete_one(ObjectId(id))
     if deleteResult == None:
         return 'Could not find item with specified ID.', 404
 
@@ -66,7 +66,23 @@ def access_item(id):
 @app.route('/config', methods=['GET', 'POST'])
 def access_config():
     if request.method == 'GET':
-        # get stuff
-        return
-    # post stuff
-    return 200
+        con = config.find_one({})
+        con['_id'] = str(con['_id'])
+        return con, 200
+
+    config.delete_many({})
+    config.insert_one({'city' : 'seattle', 'max_searches' : 10, 'search_delay' : 3})
+    tracker.updateConfig()
+    return "Configured.", 200
+
+@app.route('/query', methods=['POST', 'GET'])
+def acess_query():
+    started : bool
+    try:
+        started = tracker.queryItems()
+    except Exception as error:
+        return str(error), 400
+    
+    if started:
+        return "Query started.", 200
+    return "Query already in progress.", 200
