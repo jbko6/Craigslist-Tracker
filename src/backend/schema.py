@@ -44,3 +44,13 @@ class ItemSchema(Schema):
 
     class Meta:
         unknown = EXCLUDE
+
+class ConfigSchema(Schema):
+    _id = ObjectIdField()
+    city = fields.String(load_default="seattle")
+    max_searches = fields.Int(load_default=30)
+    search_delay = fields.Int(load_default=1)
+    query_delay_hours = fields.Int(load_default=24)
+
+    class Meta:
+        unknown = EXCLUDE

@@ -1,22 +1,28 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
+from flask_cors import CORS, cross_origin
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from schema import ItemSchema
+from schema import ItemSchema, ConfigSchema
 from marshmallow import ValidationError
 from tracker import Tracker
 
 app = Flask('Craigslist Tracker')
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 client = MongoClient('localhost', 5002)
 db = client.craigslist_tracker_db
 items = db.items
 config = db.config
 tracker = Tracker(db)
+tracker.queryItems()
 
 @app.route('/')
+@cross_origin()
 def access_index():
     return render_template('index.html')
 
 @app.route('/items/', methods=['GET', 'POST', 'DELETE'])
+@cross_origin()
 def access_items():
     if request.method == 'GET':
         cursor = items.find({})
@@ -41,41 +47,52 @@ def access_items():
     return 'Created item with ID ' + str(item_id), 200
 
 @app.route('/items/<id>', methods=['GET', 'POST', 'DELETE'])
+@cross_origin()
 def access_item(id):
     try:
-        objectId = ObjectId(id)
+        ObjectId(id)
     except:
-        return "Invalid ID", 400
+        return "Invalid ID", 404
+    
+    item = items.find_one(ObjectId(id))
+    if item == None:
+        return 'Could not find item with specified ID.', 404
 
-    if request.method == 'GET':
-        item = items.find_one(ObjectId(id))
-        if item == None:
-            return 'Could not find item with specified ID.', 404
-        
+    if request.method == 'GET':        
         return ItemSchema().dump(item), 200
     if request.method == 'POST':
-        # post stuff
-        return "you got me", 200
+        form = request.json
+        result = items.update_one({'_id': ObjectId(id)}, {'$set': form})
+        return "Updated " + str(result.modified_count) + " value(s).", 200
     
     deleteResult = items.delete_one(ObjectId(id))
     if deleteResult == None:
-        return 'Could not find item with specified ID.', 404
+        return 'Something went wrong and nothing was deleted.', 404
 
     return "Item with ID " + id + " deleted.", 200
 
 @app.route('/config', methods=['GET', 'POST'])
+@cross_origin()
 def access_config():
     if request.method == 'GET':
         con = config.find_one({})
         con['_id'] = str(con['_id'])
         return con, 200
+    
+    form = request.json
+    validatedConfig : dict
+    try:
+        validatedConfig = ConfigSchema().load(form)
+    except ValidationError as error:
+        return error.messages, 400
 
     config.delete_many({})
-    config.insert_one({'city' : 'seattle', 'max_searches' : 10, 'search_delay' : 3})
+    config.insert_one(validatedConfig)
     tracker.updateConfig()
     return "Configured.", 200
 
 @app.route('/query', methods=['POST', 'GET'])
+@cross_origin()
 def acess_query():
     started : bool
     try:

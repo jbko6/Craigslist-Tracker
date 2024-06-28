@@ -8,6 +8,7 @@ import craigslistscraper as cs
 import datetime
 import threading
 import time
+import schedule
 
 class Tracker:
 
@@ -18,6 +19,7 @@ class Tracker:
     config : dict
 
     queryThread : threading.Thread = None
+    scheduleThread = None
 
     def __init__(self, database : Database) -> None:
         self.db = database
@@ -25,7 +27,9 @@ class Tracker:
         self.configCollection = database.config
         self.config = self.configCollection.find_one({})
 
-    def updateConfig(self):
+        self.startSchedule()
+
+    def updateConfig(self) -> None:
         self.config = self.configCollection.find_one({})
     
     # returns true if query started, false if query already in progress
@@ -36,7 +40,20 @@ class Tracker:
             return True
         return False
     
-    def queryItemsThreaded(self):
+    def startSchedule(self) -> bool:
+        if self.scheduleThread == None or not self.scheduleThread.is_alive():
+            schedule.every(self.config['query_delay_hours']).hours.do(self.queryItems)
+            self.scheduleThread = threading.Thread(target=self.checkSchedule)
+            self.scheduleThread.start()
+            return True
+        return False
+    
+    def checkSchedule(self) -> None:
+        while True:
+            schedule.run_pending()
+            time.sleep(5)
+    
+    def queryItemsThreaded(self) -> None:
         cursor = self.items.find({})
 
         city = self.config['city']
@@ -65,8 +82,16 @@ class Tracker:
                 listing_dict = {}
 
                 status = ad.fetch()
+                if status == 410:
+                    query_dict['quantity'] -= 1
+                    print("Ad for " + str(query) + " no longer exists. Skipping.")
+                    continue
                 if status != 200:
                     raise Exception("Craiglist ad fetch for " + str(query) + " failed with status " + str(status) + ". ")
+                if ad.price == None:
+                    query_dict['quantity'] -= 1
+                    print("Ad has no price, skipping")
+                    continue
                 
                 print("Performed ad fetch for " + str(query))
 
@@ -95,3 +120,9 @@ class Tracker:
                 raise Exception("Query validation failed with query " + str(query) + ", raised error " + str(error.messages) + ".")
             
             self.items.update_one({'_id': item['_id']}, {'$push': {'history': validated_query}})
+
+            # TODO: for now - change later
+
+            self.items.update_one({'_id': item['_id']}, {'$set': {'median_price': query_dict['listings'][floor(median_idx)]}})
+            self.items.update_one({'_id': item['_id']}, {'$set': {'highest_price': query_dict['listings'][prices.idxmax()]}})
+            self.items.update_one({'_id': item['_id']}, {'$set': {'lowest_price': query_dict['listings'][prices.idxmin()]}})
