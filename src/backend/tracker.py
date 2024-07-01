@@ -107,11 +107,15 @@ class Tracker:
             
             query_dict['listings'] = sorted(query_dict['listings'], key=lambda listing : listing['price'])
             
-            prices = pd.Series([listing['price'] for listing in query_dict['listings']])
-            query_dict['lowest_price'] = query_dict['listings'][prices.idxmin()]
-            query_dict['highest_price'] = query_dict['listings'][prices.idxmax()]
-            median_idx = len(prices) / 2
-            query_dict['median_price'] = query_dict['listings'][floor(median_idx)]
+            if (query_dict['quantity'] > 0):
+                prices = pd.Series([listing['price'] for listing in query_dict['listings']])
+                query_dict['lowest_price'] = query_dict['listings'][prices.idxmin()]
+                query_dict['highest_price'] = query_dict['listings'][prices.idxmax()]
+                median_idx = len(prices) / 2
+                query_dict['median_price'] = query_dict['listings'][floor(median_idx)]
+            else:
+                blank_listing = ListingSchema().load({"d_pid": 0, "url": "https://www.example.com/", "price": 0.0})
+                query_dict['lowest_price'], query_dict['highest_price'], query_dict['median_price'] = blank_listing
 
             validated_query : dict
             try:
@@ -123,6 +127,12 @@ class Tracker:
 
             # TODO: for now - change later
 
-            self.items.update_one({'_id': item['_id']}, {'$set': {'median_price': query_dict['listings'][floor(median_idx)]}})
-            self.items.update_one({'_id': item['_id']}, {'$set': {'highest_price': query_dict['listings'][prices.idxmax()]}})
-            self.items.update_one({'_id': item['_id']}, {'$set': {'lowest_price': query_dict['listings'][prices.idxmin()]}})
+            if (query_dict['quantity'] > 0):
+                self.items.update_one({'_id': item['_id']}, {'$set': {'median_price': query_dict['listings'][floor(median_idx)]}})
+                self.items.update_one({'_id': item['_id']}, {'$set': {'highest_price': query_dict['listings'][prices.idxmax()]}})
+                self.items.update_one({'_id': item['_id']}, {'$set': {'lowest_price': query_dict['listings'][prices.idxmin()]}})
+            else:
+                blank_listing = ListingSchema().load({"d_pid": 0, "url": "https://www.example.com/", "price": 0.0})
+                self.items.update_one({'_id': item['_id']}, {'$set': {'median_price': blank_listing}})
+                self.items.update_one({'_id': item['_id']}, {'$set': {'highest_price': blank_listing}})
+                self.items.update_one({'_id': item['_id']}, {'$set': {'lowest_price': blank_listing}})

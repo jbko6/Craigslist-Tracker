@@ -1,0 +1,54 @@
+#create-item-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 1em 3em;
+    background-color: white;
+    border-style: groove;
+    color:black;
+    line-height: 2em;
+    min-width: 20rem;
+    max-width: 20%;
+}
+
+#create-item-popup > h2 {
+    text-align: center;
+}
+
+#create-item-popup > span {
+    color: red;
+}
+
+#create-item-popup > input {
+    margin-left: auto;
+    margin-right: 0;
+    background-color: white;
+    color: black;
+    font-family: monospace;
+    transition: 180ms box-shadow ease-in-out;
+    padding: 0.2em;
+    width: 100%;
+}
+
+#create-item-popup > input:hover {
+    box-shadow: 0 0 0 3px lightgray;
+}
+
+#create-item-popup > input:focus {
+    outline: 1px gray solid;
+    box-shadow: 0 0 0 3px lightgray;
+}
+
+#create-item-popup > #button {
+    cursor: pointer;
+}
+
+#create-item-popup > div {
+    height: 1.5em;
+}
+
+#create-item-popup > p {
+    line-height: 1em;
+    margin-top: 1em;
+}

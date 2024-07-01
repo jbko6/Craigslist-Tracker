@@ -5,6 +5,7 @@ from bson.objectid import ObjectId
 from schema import ItemSchema, ConfigSchema
 from marshmallow import ValidationError
 from tracker import Tracker
+import time
 
 app = Flask('Craigslist Tracker')
 cors = CORS(app)
@@ -15,6 +16,9 @@ items = db.items
 config = db.config
 tracker = Tracker(db)
 tracker.queryItems()
+
+# status logging stuff
+startTime = time.time()
 
 @app.route('/')
 @cross_origin()
@@ -28,7 +32,15 @@ def access_items():
         cursor = items.find({})
         item_list : list = []
         for item in cursor:
-            item_list.append(ItemSchema().dump(item))
+            item_json = ItemSchema().dump(item)
+            
+            if request.args.get('detailed', type=str) != None:
+                if request.args.get('detailed', type=str).lower() != "true":
+                    item_json['history'] = {}
+            else:
+                item_json['history'] = {}
+
+            item_list.append(item_json)
         return item_list, 200
     if request.method == 'DELETE':
         items.delete_many({})
@@ -58,14 +70,14 @@ def access_item(id):
     if item == None:
         return 'Could not find item with specified ID.', 404
 
-    if request.method == 'GET':        
+    if request.method == 'GET':
         return ItemSchema().dump(item), 200
     if request.method == 'POST':
         form = request.json
         result = items.update_one({'_id': ObjectId(id)}, {'$set': form})
         return "Updated " + str(result.modified_count) + " value(s).", 200
     
-    deleteResult = items.delete_one(ObjectId(id))
+    deleteResult = items.delete_one({'_id': ObjectId(id)})
     if deleteResult == None:
         return 'Something went wrong and nothing was deleted.', 404
 
@@ -103,3 +115,8 @@ def acess_query():
     if started:
         return "Query started.", 200
     return "Query already in progress.", 200
+
+@app.route('/status', methods=['GET'])
+@cross_origin()
+def access_status():
+    return {'uptime': time.time() - startTime}

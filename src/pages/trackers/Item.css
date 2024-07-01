@@ -1,0 +1,47 @@
+.item-container {
+    background-color: gainsboro;
+    color: black;
+    border: 0.5em;
+    border-color: gray;
+    border-style: groove;
+    padding:2em;
+    font-family: monospace;
+    text-align: center;
+}
+
+.item-container h1 {
+    font-size: xx-large;
+}
+
+.item-container hr {
+    margin: 1rem;
+}
+
+#item-buttons {
+    margin-top:1em;
+    display: grid;
+    grid-auto-flow: column;
+    gap: 1em;
+}
+
+#item-buttons a {
+    border: 1px outset transparent;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    background-color: #1a1a1a;
+    cursor: pointer;
+    transition: border-color 0.25s;
+    color: white;
+}
+#item-buttons a:hover {
+    border-color: #FFF;
+}
+#item-buttons a:active {
+    border-style: inset;
+}
+#item-buttons a:focus,
+#item-buttons a:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+}
