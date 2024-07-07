@@ -1,5 +1,5 @@
 import { LoaderFunction } from "react-router-dom";
-import { ItemData, StatusData } from "./schemas";
+import { ConfigData, ItemData, StatusData } from "./schemas";
 
 async function backendFetch<T>(route : String): Promise<T> {
     try {
@@ -27,3 +27,7 @@ export const getItem: LoaderFunction = async ({ params }): Promise<ItemData> => 
 export const getStatus: LoaderFunction = async (): Promise<StatusData> => {
     return backendFetch<StatusData>('status')  
 };
+
+export const getConfig: LoaderFunction = async(): Promise<ConfigData> => {
+    return backendFetch<ConfigData>('config')
+}

@@ -16,7 +16,7 @@ function Item({data}: {data : ItemData}) {
                 </div>)}
                 <div id="item-buttons">
                     <Link to={'item/'+data._id}>Details</Link>
-                    <Link to="">Modify</Link>
+                    <Link to={'modify/'+data._id}>Modify</Link>
                 </div>
             </div>
         </>

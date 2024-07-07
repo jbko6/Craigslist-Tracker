@@ -14,3 +14,27 @@
         box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
     }
 }
+
+#configs {
+    margin-left: 2em;
+}
+
+#divider {
+    margin: 2em 0;
+}
+
+#status-actions {
+    display: flex;
+    justify-content: space-around;
+    gap: 1em;
+}
+
+#status-actions > * {
+    width: 100%;
+    text-align: center;
+}
+
+#query-response {
+    text-align: center;
+    padding-top: 1em;
+}

@@ -5,6 +5,7 @@ from bson.objectid import ObjectId
 from schema import ItemSchema, ConfigSchema
 from marshmallow import ValidationError
 from tracker import Tracker
+from alerts import initAlerts
 import time
 
 app = Flask('Craigslist Tracker')
@@ -16,6 +17,7 @@ items = db.items
 config = db.config
 tracker = Tracker(db)
 tracker.queryItems()
+initAlerts()
 
 # status logging stuff
 startTime = time.time()
@@ -119,4 +121,6 @@ def acess_query():
 @app.route('/status', methods=['GET'])
 @cross_origin()
 def access_status():
-    return {'uptime': time.time() - startTime}
+    con = config.find_one({})
+    con['_id'] = str(con['_id'])
+    return {'uptime': time.time() - startTime, 'config': con}

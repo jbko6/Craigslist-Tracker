@@ -3,6 +3,7 @@ from pymongo.collection import Collection
 from schema import ListingSchema, QuerySchema
 from marshmallow import ValidationError
 from math import floor
+from alerts import alert
 import pandas as pd
 import craigslistscraper as cs
 import datetime
@@ -113,26 +114,19 @@ class Tracker:
                 query_dict['highest_price'] = query_dict['listings'][prices.idxmax()]
                 median_idx = len(prices) / 2
                 query_dict['median_price'] = query_dict['listings'][floor(median_idx)]
-            else:
-                blank_listing = ListingSchema().load({"d_pid": 0, "url": "https://www.example.com/", "price": 0.0})
-                query_dict['lowest_price'], query_dict['highest_price'], query_dict['median_price'] = blank_listing
+                
+                validated_query : dict
+                try:
+                    validated_query = QuerySchema().load(query_dict)
+                except ValidationError as error:
+                    raise Exception("Query validation failed with query " + str(query) + ", raised error " + str(error.messages) + ".")
+                
+                self.items.update_one({'_id': item['_id']}, {'$push': {'history': validated_query}})
 
-            validated_query : dict
-            try:
-                validated_query = QuerySchema().load(query_dict)
-            except ValidationError as error:
-                raise Exception("Query validation failed with query " + str(query) + ", raised error " + str(error.messages) + ".")
-            
-            self.items.update_one({'_id': item['_id']}, {'$push': {'history': validated_query}})
+                # TODO: for now - change later
 
-            # TODO: for now - change later
-
-            if (query_dict['quantity'] > 0):
                 self.items.update_one({'_id': item['_id']}, {'$set': {'median_price': query_dict['listings'][floor(median_idx)]}})
                 self.items.update_one({'_id': item['_id']}, {'$set': {'highest_price': query_dict['listings'][prices.idxmax()]}})
                 self.items.update_one({'_id': item['_id']}, {'$set': {'lowest_price': query_dict['listings'][prices.idxmin()]}})
-            else:
-                blank_listing = ListingSchema().load({"d_pid": 0, "url": "https://www.example.com/", "price": 0.0})
-                self.items.update_one({'_id': item['_id']}, {'$set': {'median_price': blank_listing}})
-                self.items.update_one({'_id': item['_id']}, {'$set': {'highest_price': blank_listing}})
-                self.items.update_one({'_id': item['_id']}, {'$set': {'lowest_price': blank_listing}})
+
+                alert(item)

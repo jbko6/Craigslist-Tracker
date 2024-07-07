@@ -1,26 +1,27 @@
-#create-item-popup {
+.popup-form {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     padding: 1em 3em;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 1);
     border-style: groove;
     color:black;
     line-height: 2em;
     min-width: 20rem;
     max-width: 20%;
+    z-index: 999;
 }
 
-#create-item-popup > h2 {
+.popup-form > h2 {
     text-align: center;
 }
 
-#create-item-popup > span {
+.popup-form > span {
     color: red;
 }
 
-#create-item-popup > input {
+.popup-form > input, .popup-form > button {
     margin-left: auto;
     margin-right: 0;
     background-color: white;
@@ -29,26 +30,33 @@
     transition: 180ms box-shadow ease-in-out;
     padding: 0.2em;
     width: 100%;
+    text-decoration: none;
+    border: 2px groove #858585
 }
 
-#create-item-popup > input:hover {
+.popup-form > input:hover, .popup-form > button:hover {
     box-shadow: 0 0 0 3px lightgray;
 }
 
-#create-item-popup > input:focus {
+.popup-form > input:focus {
     outline: 1px gray solid;
     box-shadow: 0 0 0 3px lightgray;
 }
 
-#create-item-popup > #button {
+.popup-form > #button {
+    margin-right: 5%;
+}
+
+.popup-form > #button, #cancel {
+    width: 47.5%;
     cursor: pointer;
 }
 
-#create-item-popup > div {
+.popup-form > div {
     height: 1.5em;
 }
 
-#create-item-popup > p {
+.popup-form > p {
     line-height: 1em;
     margin-top: 1em;
 }

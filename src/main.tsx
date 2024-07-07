@@ -5,9 +5,11 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Trackers from './pages/trackers/Trackers.tsx'
 import ItemDetails from './pages/trackers/ItemDetails.tsx'
-import { getItem, getItems, getStatus } from './api.tsx'
+import { getConfig, getItem, getItems, getStatus } from './api.tsx'
 import CreateItemPopup from './pages/trackers/CreateItemPopup.tsx'
 import StatusView from './pages/status/StatusView.tsx'
+import ModifyItemPopup from './pages/trackers/ModifyItemPopup.tsx'
+import ModifyConfigPopup from './pages/status/ModifyConfigPopup.tsx'
 
 const router = createBrowserRouter([
   {
@@ -22,6 +24,11 @@ const router = createBrowserRouter([
           {
             path: "/create",
             element: <CreateItemPopup></CreateItemPopup>
+          },
+          {
+            path: "/modify/:itemId",
+            element: <ModifyItemPopup></ModifyItemPopup>,
+            loader: getItem
           }
         ]
       },
@@ -31,9 +38,16 @@ const router = createBrowserRouter([
         loader: getItem
       },
       {
-        path: "/status",
+        path: "/status/",
         element: <StatusView></StatusView>,
-        loader: getStatus
+        loader: getStatus,
+        children: [
+          {
+            path: "/status/modify",
+            element: <ModifyConfigPopup></ModifyConfigPopup>,
+            loader: getConfig
+          }
+        ]
       }
     ]
   }

@@ -1,5 +1,6 @@
 from marshmallow import Schema, fields, ValidationError, EXCLUDE
 from bson.objectid import ObjectId
+from enum import Enum
 
 class ObjectIdField(fields.Field):
 
@@ -31,6 +32,16 @@ class QuerySchema(Schema):
     class Meta:
         unknown = EXCLUDE
 
+class AlertSchema(Schema):
+    tracking = fields.String()
+    critical_point = fields.Number(required=True)
+    greater_than = fields.Boolean()
+    email = fields.String(required=True)
+    last_alert = fields.Nested(ListingSchema)
+
+    class Meta:
+        unknown = EXCLUDE
+
 class ItemSchema(Schema):
     _id = ObjectIdField()
     name = fields.String(required = True)
@@ -41,6 +52,7 @@ class ItemSchema(Schema):
     lowest_price = fields.Nested(ListingSchema)
     highest_price = fields.Nested(ListingSchema)
     history = fields.List(fields.Nested(QuerySchema))
+    alerts = fields.List(fields.Nested(AlertSchema))
 
     class Meta:
         unknown = EXCLUDE

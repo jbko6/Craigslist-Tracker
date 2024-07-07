@@ -1,4 +1,77 @@
 #item-details-container {
-    display: flex;
     width: 100%;
+    padding: 2em;
+}
+
+#item-details-header {
+    display: flex;
+}
+
+#item-details-delete {
+    max-width: 100px;
+    padding: 0.5em;
+    margin-right: 0.2em;
+    margin-left: auto;
+    margin-bottom: 0.2em;
+    cursor: pointer;
+}
+
+#item-details-chart {
+    width: 100%;
+    height: 350px;
+}
+
+#item-details-container > hr {
+    margin-bottom: 2em;
+}
+
+#query-details-container {
+    padding: 2em;
+    border: groove gray;
+    background-image: url('../../assets/dots_dark.jpg');
+    background-size: 80%;
+}
+
+#query-details-container a {
+    border: none;
+    background-color: transparent;
+    color: white;
+    padding: 0;
+}
+
+#query-details {
+    display: flex;
+    height: 100%;
+    padding: 1em 0;
+}
+
+#query-data {
+    width: 30%;
+    min-height: 100%;
+    border: groove lightgray;
+    padding: 1em;
+    margin-right: 1em;
+    line-height: 2em;
+}
+
+#query-listings {
+    height: 230px;
+    width: 100%;
+    border: 0.5em groove lightgray;
+    background-color: white;
+    /*background-image: url('../../assets/dots.jpg');*/
+    background-size: 1em;
+}
+
+#query-listings a, ul {
+    color: black;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: scroll;
+}
+
+#query-listings li {
+    padding: 0.2em;
+    border: 1px solid gray;
 }

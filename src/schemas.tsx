@@ -1,4 +1,4 @@
-interface ListingSchema {
+export interface ListingSchema {
     d_pid : number;
     url : string;
     price : number;
@@ -26,5 +26,13 @@ export interface ItemData {
 }
 
 export interface StatusData {
-    uptime: number;
+    uptime : number;
+    config : ConfigData;
+}
+
+export interface ConfigData {
+    city : string;
+    max_searches : number;
+    query_delay_hours : number;
+    search_delay : number;
 }
