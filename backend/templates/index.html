@@ -1,0 +1,21 @@
+<h>Internal backend for Craigslist Tracker App</h>
+
+<h2>Endpoints:</h2>
+<ul>
+	<li>items/</li>
+        <ul>
+        <li>GET: return JSON list of tracked items with their dictionaries</li>
+        <li>POST: add a tracked item</li>
+        <li>/&lt;item id&gt;</li>
+            <ul>
+			<li>GET: return tracked item JSON dictionary</li>
+            <li>POST: modify item</li>
+            <li>DELETE: delete the tracked item</li>
+            </ul>
+        </ul>
+    <li>config</li>
+        <ul>
+		<li>GET: return JSON dictionary of current configuration settings</li>
+        <li>POST: modify configuration settings</li>
+    </ul>
+</ul>
