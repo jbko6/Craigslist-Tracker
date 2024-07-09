@@ -7,7 +7,7 @@ function ModifyConfigPopup() {
 
     return (
         <>
-            <Popup postURL={'http://localhost:5001/config'} completetionRedirection='/status' formEntries={[
+            <Popup title='Modify Config' postURL={'http://localhost:5001/config'} completetionRedirection='/status' formEntries={[
                     {name: 'City', key: 'city', required: true, defaultValue: data.city},
                     {name: 'Max Searches', key: 'max_searches', required: true, defaultValue: String(data.max_searches)},
                     {name: 'Query Delay', key: 'query_delay_hours', required: true, defaultValue: String(data.query_delay_hours)},

@@ -1,8 +1,9 @@
 import "./ItemDetails.css"
 import { useLoaderData, useNavigate } from "react-router-dom"
-import { ItemData, ListingSchema, QueryData } from "../../schemas"
+import { ItemData, ListingData, QueryData } from "../../schemas"
 import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { useEffect, useState } from "react"
+import Alerts from "./Alerts"
 
 function ItemDetails() {
     const data = useLoaderData() as ItemData
@@ -75,7 +76,7 @@ function ItemDetails() {
                                 stroke="#FFF" 
                                 connectNulls 
                                 yAxisId="price" 
-                                activeDot={{onClick: (event, payload : any) => setActiveQuery(payload['payload'])}}
+                                activeDot={{onClick: (_, payload : any) => setActiveQuery(payload['payload'])}}
                                 animationDuration={0}
                             />
                             {/* <Bar dataKey="quantity" yAxisId="quantity" fill="white" width={1}/> */}
@@ -92,16 +93,14 @@ function ItemDetails() {
                             <p>Highest Price : <a href={activeQuery.highest_price.url}>${activeQuery.highest_price.price}</a></p>
                         </div>
                         <ul id='query-listings'>
-                            {activeQuery.listings.map((listing : ListingSchema) => {
+                            {activeQuery.listings.map((listing : ListingData) => {
                                 return <a href={listing.url}><li>${listing.price}</li></a>
                             })}
                         </ul>
                     </div>
                 </div>) : (<div id='query-details-container'>
                     <h1>Alerts</h1>
-                    <div id='alerts-container'>
-                        
-                    </div>
+                    <Alerts data={data}></Alerts>
                 </div>)}
                 
             </div>

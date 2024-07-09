@@ -1,45 +1,34 @@
-import base64
-from email.message import EmailMessage
+import smtplib
+import os
+from bson import ObjectId
 from dotenv import load_dotenv
+from email.mime.text import MIMEText
+from pymongo.collection import Collection
 
-import google.auth
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-
-creds : any
+smtp_connection : smtplib.SMTP = None
 
 def initAlerts() -> None:
     load_dotenv()
-    creds, _ = google.auth.default()
 
-def alert(item : dict) -> None:
+def alert(item : dict, itemDB : Collection, query) -> None:
     if 'alerts' in item:
-        for alert in item['alerts']:
-            latest_query = item['history'][0]
-            tracked_price = latest_query[str(alert['tracking'])]['price']
-            if (tracked_price > alert['critical_point'] if alert['greater_than'] else tracked_price < alert['critical_point']) or True:
-                try:
-                    service = build("gmail", "v1", credentials=creds)
-                    message = EmailMessage()
+        for idx, alert in enumerate(item['alerts']):
+            tracked_price = query[str(alert['tracking'])]['price']
+            if (tracked_price > alert['critical_point'] if alert['greater_than'] else tracked_price < alert['critical_point']):
+                #send the email
+                smtp_connection = smtplib.SMTP(os.getenv('SMTP_SERVER_URL'), os.getenv('SMTP_PORT'))
+                smtp_connection.login(os.getenv('SMTP_USER'), os.getenv('SMTP_PASSWORD'))
 
-                    message.set_content("An item you had alerts for has reached a critical point. Check it out here: http://localhost/items/" + item['_id'])
+                email_body = "The item '" + item['name'] + "' has reached a critical point. Check it out here: http://localhost:5000/item/" + str(item['_id'])
+                email_message = MIMEText(email_body)
+                email_message['Subject'] = "Alert: " + item['name']
+                email_message['From'] = os.getenv('SMTP_SENDER')
+                email_message['To'] = alert['email']
 
-                    message["To"] = alert['email']
-                    message["From"] = alert['craigslist.tracker@gmail.com']
-                    message["Subject"] = "Alert: " + item['name']
+                smtp_connection.sendmail(os.getenv('SMTP_SENDER'), alert['email'], email_message.as_string())
 
-                    encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+                smtp_connection.quit()
 
-                    create_message = {"raw" : encoded_message}
+                itemDB.update_one({'_id': ObjectId(item['_id'])}, {'$set': {'alerts.' + str(idx) + '.last_alert': query}})
 
-                    send_message = (
-                        service.users()
-                         .messages()
-                         .send(userId="me", body=create_message)
-                         .execute()
-                    )
-                    print(f'Sent email alert for {item["name"]} with id {send_message["_id"]}')
-                except HttpError as error:
-                    print(f'Email alert for {item["_id"]} failed with error: {error}')
-                    send_message = None
-                return send_message
+                print('Sent email for ' + item['name'])

@@ -1,4 +1,4 @@
-export interface ListingSchema {
+export interface ListingData {
     d_pid : number;
     url : string;
     price : number;
@@ -6,11 +6,19 @@ export interface ListingSchema {
 
 export interface QueryData {
     datetime : string;
-    median_price : ListingSchema;
-    lowest_price : ListingSchema;
-    highest_price : ListingSchema;
+    median_price : ListingData;
+    lowest_price : ListingData;
+    highest_price : ListingData;
     quantity : number;
-    listings : ListingSchema[];
+    listings : ListingData[];
+}
+
+export interface AlertData {
+    tracking : string;
+    critical_point : number;
+    greater_than : boolean;
+    email : string;
+    last_alert? : ListingData;
 }
 
 export interface ItemData {
@@ -19,10 +27,11 @@ export interface ItemData {
     query : string;
     category : string;
     filters? : any;
-    median_price? : ListingSchema;
-    lowest_price? : ListingSchema;
-    highest_price? : ListingSchema;
-    history?: QueryData[];
+    median_price? : ListingData;
+    lowest_price? : ListingData;
+    highest_price? : ListingData;
+    history? : QueryData[];
+    alerts : AlertData[];
 }
 
 export interface StatusData {

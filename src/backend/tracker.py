@@ -129,4 +129,4 @@ class Tracker:
                 self.items.update_one({'_id': item['_id']}, {'$set': {'highest_price': query_dict['listings'][prices.idxmax()]}})
                 self.items.update_one({'_id': item['_id']}, {'$set': {'lowest_price': query_dict['listings'][prices.idxmin()]}})
 
-                alert(item)
+                alert(item, self.items, validated_query)

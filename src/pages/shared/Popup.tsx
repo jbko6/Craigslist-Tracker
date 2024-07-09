@@ -12,6 +12,7 @@ export interface FormEntry {
 }
 
 interface PopupProps {
+    title : string,
     postURL : string, 
     submitFunction? : ((postData: any) => Promise<void>),
     completetionRedirection? : string,
@@ -19,6 +20,7 @@ interface PopupProps {
 }
 
 function Popup({
+    title,
     postURL, 
     submitFunction, 
     completetionRedirection = '/',
@@ -70,7 +72,7 @@ function Popup({
     return (
         <>
             <form className='popup-form' onSubmit={handleSubmit(submitFunction ? submitFunction : submitData)}>
-                <h2>Modify Tracker</h2>
+                <h2>{title}</h2>
                 {formEntries.map((entry) => {
                     return <>
                         <label htmlFor={entry.name}>{entry.name}: </label>
