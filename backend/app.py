@@ -6,15 +6,22 @@ from schema import ItemSchema, ConfigSchema
 from marshmallow import ValidationError
 from tracker import Tracker
 from alerts import initAlerts
+from dotenv import load_dotenv
+import os
 import time
+
+load_dotenv
 
 app = Flask('Craigslist Tracker')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
-client = MongoClient('localhost', 5002)
+client = MongoClient(os.getenv('MONGO_HOSTNAME'), 5002)
 db = client.craigslist_tracker_db
 items = db.items
 config = db.config
+if (config.find_one({}) == None):
+    default_config = ConfigSchema().load({})
+    config.insert_one(default_config)
 tracker = Tracker(db)
 tracker.queryItems()
 initAlerts()

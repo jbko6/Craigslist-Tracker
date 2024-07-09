@@ -1,0 +1,49 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    networks:
+      - frontend
+  
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - 5001:5001
+    environment:
+      - MONGO_HOSTNAME=db
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - db
+      - frontend
+  
+  db:
+    image: mongo
+    container_name: mongo
+    restart: unless-stopped
+    command: mongod --port 5002
+    ports:
+      - 5002:5002
+    environment:
+      - MONGO_INITDB_DATABSE=craigslist_tracker_db
+      - MONGODB_DATA_DIR=/data
+    volumes:
+      - type: volume
+        source: dbdata
+        target: /data
+    networks:
+      - backend
+  
+
+networks:
+  frontend:
+  backend:
+
+volumes:
+  dbdata:
